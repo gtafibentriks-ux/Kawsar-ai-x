@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="KAWSAR-AI — Your Intelligent AI Chat Partner"/>
+<meta name="theme-color" content="#080e1a"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<title>KAWSAR-AI · Intelligent Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-row">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <div class="name"><span>KAWSAR</span>-AI</div>
+        <div class="tag">INTELLIGENCE v3.0</div>
+      </div>
+    </div>
+    <button class="new-chat-btn" onclick="newChat()">＋ NEW CHAT</button>
+  </div>
+  <div class="sidebar-search">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input id="chat-search" placeholder="Search conversations…" oninput="filterChats(this.value)"/>
+    </div>
+  </div>
+  <div class="chat-list" id="chat-list">
+    <div class="section-label">CONVERSATIONS</div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="footer-btn" onclick="openSettings()">⚙️ Settings</button>
+    <button class="footer-btn" onclick="showImageGen()">🎨 Image Studio</button>
+    <div class="copy-line">KAWSAR-AI © 2025</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <!-- Header -->
+  <div id="header">
+    <div class="header-left">
+      <button class="icon-btn" onclick="toggleSidebar()">☰</button>
+      <div id="model-wrap">
+        <button id="model-btn" onclick="toggleModelPicker()">
+          <span class="model-dot"></span>
+          <span id="model-label">KAWSAR-2</span>
+          <span style="color:var(--muted)">▾</span>
+        </button>
+        <div id="model-dropdown">
+          <button class="model-opt active" onclick="selectModel('claude-sonnet-4-20250514','KAWSAR-2','Smart',this)">
+            <div class="model-name">KAWSAR-2 <span class="model-tag">SMART</span></div>
+            <div class="model-desc">Best for complex tasks</div>
+          </button>
+          <button class="model-opt" onclick="selectModel('claude-sonnet-4-20250514','KAWSAR-2 Mini','Fast',this)">
+            <div class="model-name">KAWSAR-2 Mini <span class="model-tag">FAST</span></div>
+            <div class="model-desc">Quick, efficient responses</div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="header-center">
+      <button class="tab-btn active" id="tab-chat" onclick="switchTab('chat')">💬 Chat</button>
+      <button class="tab-btn" id="tab-image" onclick="switchTab('image')">🎨 Image</button>
+    </div>
+    <div class="header-right">
+      <div class="status-pill"><span class="status-dot"></span>ONLINE</div>
+      <button class="icon-btn" onclick="newChat()">✏</button>
+    </div>
+  </div>
+
+  <!-- ══ CHAT TAB ══ -->
+  <div id="chat-panel">
+    <div id="messages">
+      <div id="welcome">
+        <div class="welcome-logo">K</div>
+        <div class="welcome-title"><span>KAWSAR</span>-AI</div>
+        <div class="welcome-sub">YOUR INTELLIGENT PARTNER · ASK ANYTHING</div>
+        <div class="chips" id="chips"></div>
+        <div class="modes">
+          <div class="mode-label">RESPONSE MODE</div>
+          <button class="mode-btn active" onclick="setMode('default',this)">🎯 Default</button>
+          <button class="mode-btn" onclick="setMode('fun',this)">😄 Fun</button>
+          <button class="mode-btn" onclick="setMode('precise',this)">🔬 Precise</button>
+          <button class="mode-btn" onclick="setMode('creative',this)">🎨 Creative</button>
+        </div>
+      </div>
+      <div class="msg-row" id="typing-row">
+        <div class="avatar ai-av">K</div>
+        <div class="bubble-wrap">
+          <div class="ai-bubble">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <div id="input-inner">
+        <div id="edit-banner">
+          <span>✏️ Editing message — Enter to confirm</span>
+          <button class="banner-close" onclick="cancelEdit()">✕</button>
+        </div>
+        <div id="img-preview-wrap">
+          <img id="img-preview" src="" alt="preview"/>
+          <button id="img-remove" onclick="removeImage()">✕</button>
+        </div>
+        <div id="input-box">
+          <textarea id="input" rows="1" placeholder="Message KAWSAR-AI…"
+            oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+          <div id="toolbar">
+            <div class="tool-group">
+              <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+              <button class="tool-btn" onclick="document.getElementById('file-input').click()">📎 Image</button>
+              <button class="tool-btn" id="search-toggle" onclick="toggleSearch()">
+                🌐 Search <div class="toggle" id="search-tgl"></div>
+              </button>
+              <select id="persona-sel" onchange="setPersonaFromSel(this.value)">
+                <option value="default">🎯 Default</option>
+                <option value="fun">😄 Fun</option>
+                <option value="precise">🔬 Precise</option>
+                <option value="creative">🎨 Creative</option>
+              </select>
+              <button class="tool-btn img-gen-quick" onclick="switchTab('image')" title="Generate Image">🎨 Generate</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:9px;color:var(--muted);letter-spacing:.08em">SHIFT+↵ NEWLINE</span>
+              <button id="send-btn" onclick="sendMessage()" disabled>↑</button>
+            </div>
+          </div>
+        </div>
+        <div class="input-hint">KAWSAR-AI · POWERED BY CLAUDE · BUILT WITH ❤</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ IMAGE STUDIO TAB ══ -->
+  <div id="image-panel" style="display:none">
+    <div id="image-studio">
+      <div class="studio-header">
+        <div class="studio-title">🎨 Image Studio</div>
+        <div class="studio-sub">Generate & edit images with AI</div>
+      </div>
+
+      <!-- Mode toggle -->
+      <div class="studio-modes">
+        <button class="stmode-btn active" id="sm-generate" onclick="setStudioMode('generate')">✨ Generate</button>
+        <button class="stmode-btn" id="sm-edit" onclick="setStudioMode('edit')">✏️ Edit Image</button>
+        <button class="stmode-btn" id="sm-variations" onclick="setStudioMode('variations')">🔄 Variations</button>
+      </div>
+
+      <div class="studio-body">
+        <!-- LEFT: Controls -->
+        <div class="studio-controls">
+
+          <!-- Generate mode -->
+          <div id="ctrl-generate">
+            <div class="ctrl-label">PROMPT</div>
+            <textarea id="img-prompt" class="img-textarea" rows="3"
+              placeholder="Describe the image you want to create…&#10;e.g. 'A futuristic city at night with neon lights'"></textarea>
+
+            <div class="ctrl-label" style="margin-top:14px">STYLE</div>
+            <div class="style-grid" id="style-grid">
+              <button class="style-btn active" data-style="realistic" onclick="selectStyle(this)">📷 Realistic</button>
+              <button class="style-btn" data-style="anime" onclick="selectStyle(this)">🌸 Anime</button>
+              <button class="style-btn" data-style="digital" onclick="selectStyle(this)">💻 Digital Art</button>
+              <button class="style-btn" data-style="oil" onclick="selectStyle(this)">🖼 Oil Paint</button>
+              <button class="style-btn" data-style="sketch" onclick="selectStyle(this)">✏️ Sketch</button>
+              <button class="style-btn" data-style="watercolor" onclick="selectStyle(this)">🎨 Watercolor</button>
+            </div>
+
+            <div class="ctrl-label" style="margin-top:14px">SIZE</div>
+            <div class="size-grid">
+              <button class="size-btn active" data-w="1024" data-h="1024" onclick="selectSize(this)">1:1 Square</button>
+              <button class="size-btn" data-w="1280" data-h="720" onclick="selectSize(this)">16:9 Wide</button>
+              <button class="size-btn" data-w="720" data-h="1280" onclick="selectSize(this)">9:16 Portrait</button>
+              <button class="size-btn" data-w="1200" data-h="628" onclick="selectSize(this)">Banner</button>
+            </div>
+
+            <button class="generate-btn" id="gen-btn" onclick="generateImage()">
+              <span id="gen-btn-text">✨ Generate Image</span>
+              <div class="gen-spinner" id="gen-spinner" style="display:none"></div>
+            </button>
+          </div>
+
+          <!-- Edit mode -->
+          <div id="ctrl-edit" style="display:none">
+            <div class="ctrl-label">UPLOAD IMAGE TO EDIT</div>
+            <div class="upload-zone" id="edit-upload-zone" onclick="document.getElementById('edit-file').click()">
+              <input type="file" id="edit-file" accept="image/*" style="display:none" onchange="handleEditUpload(event)"/>
+              <div id="edit-upload-placeholder">
+                <div style="font-size:32px;margin-bottom:8px">📤</div>
+                <div style="font-size:12px;color:var(--muted)">Click or drag image here</div>
+              </div>
+              <img id="edit-preview-img" style="display:none;max-width:100%;border-radius:8px" alt=""/>
+            </div>
+
+            <div class="ctrl-label" style="margin-top:14px">EDIT INSTRUCTION</div>
+            <textarea id="edit-prompt" class="img-textarea" rows="3"
+              placeholder="Describe what to change…&#10;e.g. 'Make the sky purple with stars' or 'Add a dragon flying in the background'"></textarea>
+
+            <button class="generate-btn" id="edit-btn" onclick="editImage()">
+              <span id="edit-btn-text">✏️ Edit Image</span>
+              <div class="edit-spinner" id="edit-spinner" style="display:none"></div>
+            </button>
+          </div>
+
+          <!-- Variations mode -->
+          <div id="ctrl-variations" style="display:none">
+            <div class="ctrl-label">UPLOAD IMAGE FOR VARIATIONS</div>
+            <div class="upload-zone" onclick="document.getElementById('var-file').click()">
+              <input type="file" id="var-file" accept="image/*" style="display:none" onchange="handleVariationUpload(event)"/>
+              <div id="var-upload-placeholder">
+                <div style="font-size:32px;margin-bottom:8px">🔄</div>
+                <div style="font-size:12px;color:var(--muted)">Upload image to create variations</div>
+              </div>
+              <img id="var-preview-img" style="display:none;max-width:100%;border-radius:8px" alt=""/>
+            </div>
+
+            <div class="ctrl-label" style="margin-top:14px">VARIATION STYLE</div>
+            <textarea id="var-prompt" class="img-textarea" rows="2"
+              placeholder="Optional: describe the variation style…&#10;e.g. 'More vibrant colors, futuristic style'"></textarea>
+
+            <button class="generate-btn" onclick="generateVariation()">
+              <span>🔄 Create Variation</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Output -->
+        <div class="studio-output">
+          <div class="output-header">
+            <div class="ctrl-label">OUTPUT</div>
+            <div id="output-actions" style="display:none;gap:8px;display:none">
+              <button class="out-btn" onclick="downloadImage()">⬇ Download</button>
+              <button class="out-btn" onclick="sendToChat()">💬 Send to Chat</button>
+              <button class="out-btn" onclick="useAsEditBase()">✏️ Edit This</button>
+            </div>
+          </div>
+
+          <div class="output-canvas" id="output-canvas">
+            <div class="output-placeholder" id="output-placeholder">
+              <div style="font-size:48px;margin-bottom:12px;opacity:.3">🎨</div>
+              <div style="font-size:12px;color:var(--muted);letter-spacing:.08em">YOUR IMAGE WILL APPEAR HERE</div>
+            </div>
+            <img id="output-image" style="display:none;max-width:100%;max-height:100%;border-radius:10px;object-fit:contain" alt="Generated image"/>
+            <div class="gen-overlay" id="gen-overlay" style="display:none">
+              <div class="gen-progress">
+                <div class="gen-ring"></div>
+                <div class="gen-status" id="gen-status">Generating…</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="output-meta" style="display:none;padding:10px 0;font-size:10px;color:var(--muted);line-height:1.6"></div>
+
+          <!-- Gallery -->
+          <div id="gallery-wrap" style="display:none">
+            <div class="ctrl-label" style="margin-top:16px">HISTORY</div>
+            <div class="gallery" id="gallery"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="modal-overlay" onclick="closeSettingsOutside(event)">
+  <div id="settings-modal">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Settings</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="section-head">PREFERENCES</div>
+    <div class="setting-row">
+      <div><div class="setting-label">🌐 Web Search</div><div class="setting-sub">Enable real-time internet search</div></div>
+      <div class="toggle" id="settings-search-tgl" onclick="toggleSearchFromSettings()"></div>
+    </div>
+    <div class="section-head">AI PERSONA</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="mode-btn active" id="sp-default" onclick="setModeFromSettings('default')">🎯 Default</button>
+      <button class="mode-btn" id="sp-fun" onclick="setModeFromSettings('fun')">😄 Fun</button>
+      <button class="mode-btn" id="sp-precise" onclick="setModeFromSettings('precise')">🔬 Precise</button>
+      <button class="mode-btn" id="sp-creative" onclick="setModeFromSettings('creative')">🎨 Creative</button>
+    </div>
+    <div class="section-head">MODEL</div>
+    <div id="settings-models"></div>
+    <div class="danger-zone">
+      <div class="danger-title">DANGER ZONE</div>
+      <button class="danger-btn" onclick="clearAllChats()">🗑 Clear All Conversations</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
